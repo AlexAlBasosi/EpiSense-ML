@@ -82,10 +82,10 @@ class GUI:
         if result:
             self.keepCheckingWirelessStrength = True
             self.buildBrowseButtonFrame()
-            self.buildFolderInfoFrame()
+            #self.buildFolderInfoFrame()
             self.buildImageIntervalFrame()
             self.buildTotalTimeFrame()
-            self.buildCropImagesFrame()
+            #self.buildCropImagesFrame()
             self.buildSubjectNameFrame()
             self.tk.after(100, self.updateWirelessThread)
 
@@ -129,25 +129,25 @@ class GUI:
 
     def buildBrowseButtonFrame(self):
         browseButtonFrame = Frame()
-        browseButton = Button(browseButtonFrame, text="Choose experiment folder", command=self.onBrowseDirectory)
+        browseButton = Button(browseButtonFrame, text="Select recording directory", command=self.onBrowseDirectory)
         browseButton.pack(side=LEFT)
         self.browseDirectoryVar = StringVar(self.tk)
         browseDirectoryLabel = Label(browseButtonFrame, textvariable=self.browseDirectoryVar)
         browseDirectoryLabel.pack(side=LEFT)
         browseButtonFrame.pack(anchor=W)
 
-    def buildFolderInfoFrame(self):
-        folderInfoFrame = Frame()
-        folderInfoLabel = Label(folderInfoFrame, text="Number of images in folder: ")
-        folderInfoLabel.pack(side=LEFT)
-        self.folderInfoNoFilesVar = StringVar(self.tk)
-        folderInfoNoFiles = Label(folderInfoFrame, textvariable=self.folderInfoNoFilesVar)
-        folderInfoNoFiles.pack(side=LEFT)
-        folderInfoFrame.pack(anchor=W)
+    #def buildFolderInfoFrame(self):
+        #folderInfoFrame = Frame()
+        #folderInfoLabel = Label(folderInfoFrame, text="Number of images in folder: ")
+        #folderInfoLabel.pack(side=LEFT)
+        #self.folderInfoNoFilesVar = StringVar(self.tk)
+        #folderInfoNoFiles = Label(folderInfoFrame, textvariable=self.folderInfoNoFilesVar)
+        #folderInfoNoFiles.pack(side=LEFT)
+        #folderInfoFrame.pack(anchor=W)
 
     def buildImageIntervalFrame(self):
         imageIntervalFrame = Frame()
-        imageIntervalLabel = Label(imageIntervalFrame, text="Image display interval (s): ")
+        imageIntervalLabel = Label(imageIntervalFrame, text="EEG recording duration (s): ")
         imageIntervalLabel.pack(side=LEFT)
         self.imageIntervalVar = StringVar(self.tk)
         imageIntervalEntry = Entry(imageIntervalFrame, textvariable=self.imageIntervalVar)
@@ -158,20 +158,20 @@ class GUI:
 
     def buildTotalTimeFrame(self):
         totalTimeFrame = Frame()
-        totalTimeLabel = Label(totalTimeFrame, text="Experiment duration: ")
+        totalTimeLabel = Label(totalTimeFrame, text="Total detection duration: ")
         totalTimeLabel.pack(side=LEFT)
         self.totalTimeVar = StringVar(self.tk)
         totalTime = Label(totalTimeFrame, textvariable=self.totalTimeVar)
         totalTime.pack(side=LEFT)
         totalTimeFrame.pack(anchor=W)
 
-    def buildCropImagesFrame(self):
-        cropImagesFrame = Frame()
-        self.cropImagesVar = IntVar(self.tk)
-        cropImages = Checkbutton(cropImagesFrame, text="Crop and resize images to fill screen", variable=self.cropImagesVar)
-        self.cropImagesVar.set(1)
-        cropImages.pack(side=LEFT)
-        cropImagesFrame.pack(anchor=W)
+##    def buildCropImagesFrame(self):
+##        cropImagesFrame = Frame()
+##        self.cropImagesVar = IntVar(self.tk)
+##        cropImages = Checkbutton(cropImagesFrame, text="Crop and resize images to fill screen", variable=self.cropImagesVar)
+##        self.cropImagesVar.set(1)
+##        cropImages.pack(side=LEFT)
+##        cropImagesFrame.pack(anchor=W)
 
     def buildSubjectNameFrame(self):
         subjectNameFrame = Frame()
@@ -200,7 +200,7 @@ class GUI:
         return self.wirelessStrength > 0
 
     def isImageDirectoryValid(self):
-        noFiles = self.folderInfoNoFilesVar.get()
+        noFiles = True#self.folderInfoNoFilesVar.get()
         return noFiles and int(noFiles) > 0
 
     def isImageIntervalValid(self):
@@ -221,7 +221,7 @@ class GUI:
     def updateTotalTime(self):
         if self.isImageDirectoryValid() and self.isImageIntervalValid():
             imageInterval = int(self.imageIntervalVar.get())
-            noFiles = int(self.folderInfoNoFilesVar.get())
+            noFiles = 1#int(self.folderInfoNoFilesVar.get())
             seconds = imageInterval * noFiles
             if seconds < 60:
                 self.totalTimeVar.set(str(seconds) + "s")
@@ -238,14 +238,14 @@ class GUI:
         dir = tkFileDialog.askdirectory()
         self.browseDirectoryVar.set(dir)
         noFiles = Helpers.getNoImagesInDirectory(dir)
-        self.folderInfoNoFilesVar.set(noFiles)
+        #self.folderInfoNoFilesVar.set(noFiles)
         self.onChange(None, None, None)
 
     def go(self):
         dir = self.browseDirectoryVar.get()
         images = Helpers.getImagesInDirectory(dir)
         imageInterval = int(self.imageIntervalVar.get())
-        crop = int(self.cropImagesVar.get())
+        crop = 0#int(self.cropImagesVar.get())
 
         self.imageWindow = Helpers.ImageWindow(self.tk, dir, images, imageInterval, self.threadedTasks, crop)
 
@@ -258,7 +258,7 @@ class GUI:
         subjectName = self.subjectNameVar.get()
         dayHourStr = datetime.datetime.now().strftime("%d%m%Y_%H%M%S")
         imageInterval = int(self.imageIntervalVar.get())
-        csvOutputFilePath = dir + "/_" + subjectName + "_" + str(imageInterval) + "s_" + dir[dir.rfind("/")+1:] + "_" + dayHourStr + ".csv"
+        csvOutputFilePath = dir + "/FINALTEST2" + ".csv"
         initialTime = time()
 
         self.imageWindow.handleNextImage()

@@ -34,8 +34,8 @@ class FullScreenWindow:
         self.frame = Frame(self.tk)
         self.frame.pack()
         self.state = False
-        self.tk.iconbitmap("misc/favicon.ico")
-        self.tk.title("EEG Unified Logger a.k.a. The Experiment Machine")
+        self.tk.iconbitmap("misc/LOGOsmall.ico")
+        self.tk.title("Episense EEG logger")
         self.tk.minsize(width=600, height=400)
 
         self.tk.bind("<F11>", self.toggle_fullscreen)
@@ -45,12 +45,12 @@ class FullScreenWindow:
 
     def toggle_fullscreen(self, event=None):
         self.state = not self.state
-        self.tk.attributes("-fullscreen", self.state)
+        self.tk.attributes("-alpha", self.state)
         return "break"
 
     def end_fullscreen(self, event=None):
         self.state = False
-        self.tk.attributes("-fullscreen", False)
+        self.tk.attributes("-alpha", False)
         return "break"
 
     def on_closing(self):
@@ -73,13 +73,13 @@ class ImageWindow:
         self.curImageIndex = 0
 
         self.window = Toplevel(self.tk)
-        self.window.attributes("-fullscreen", True)
+        self.window.attributes("-alpha", True)
         self.window.focus_force()
         self.window.bind("<Escape>", self.experimentStoppedByUser)
         self.windowDestroyed = False
 
         self.imagePanel = Label(self.window, image=None)
-        self.imagePanel.pack(side="bottom", fill="both", expand="yes")
+        self.imagePanel.pack(side="right", fill="both", expand="yes")
 
     def experimentStoppedByUser(self, event=None):
         self.window.destroy()
@@ -90,7 +90,7 @@ class ImageWindow:
         if not self.windowDestroyed:
             try:
                 curImage = str(self.images[self.curImageIndex])
-                self.threadedTasks.setCurrentFileName(curImage)
+                #self.threadedTasks.setCurrentFileName(curImage)
                 self.displayImage(self.dir + "/" + curImage)
                 self.curImageIndex += 1
                 self.window.after(self.imageInterval * 1000, self.handleNextImage)

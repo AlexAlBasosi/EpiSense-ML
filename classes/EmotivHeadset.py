@@ -159,22 +159,20 @@ class EmotivHeadsetInformation:
         state = c_int(0)
 
         alphaValue = c_double(0)
-        low_betaValue = c_double(0)
-        high_betaValue = c_double(0)
-        gammaValue = c_double(0)
+        betaValue = c_double(0)
+        deltaValue = c_double(0)
         thetaValue = c_double(0)
 
         alpha = pointer(alphaValue)
-        low_beta = pointer(low_betaValue)
-        high_beta = pointer(high_betaValue)
-        gamma = pointer(gammaValue)
+        beta = pointer(betaValue)
+        delta = pointer(deltaValue)
         theta = pointer(thetaValue)
 
         channelList = array('I', [3, 7, 9, 12, 16])  # IED_AF3, IED_AF4, IED_T7, IED_T8, IED_Pz
 
         channels = ["AF3", "AF4", "T7", "T8", "Pz"]
-        bands = ["Theta", "Alpha", "LBeta", "HBeta", "Gamma"]
-        header = ["Timestamp", "Filename"]
+        bands = ["Theta", "Alpha", "Beta", "Delta"]
+        header = ["id", "Timestamp"]
         for channel in channels:
             for band in bands:
                 header.append(channel + " " + band)
@@ -196,11 +194,11 @@ class EmotivHeadsetInformation:
                     self.libEDK.IEE_FFTSetWindowingType(userID, 1)
 
                 if self.ready == 1:
-                    row = [(time() - initialTime), self.currentFileName]
+                    row = ['1', (time() - initialTime)]
                     writerow = True
                     for i in channelList:
-                        self.libEDK.IEE_GetAverageBandPowers(userID, i, theta, alpha, low_beta, high_beta, gamma)
-                        values = [thetaValue.value, alphaValue.value, low_betaValue.value, high_betaValue.value, gammaValue.value]
+                        self.libEDK.IEE_GetAverageBandPowers(userID, i, theta, alpha, beta, delta)
+                        values = [thetaValue.value, alphaValue.value, betaValue.value, deltaValue.value]
                         if i == 3:
                             if values == previousFirstSensorValues:  # prevent duplicate consecutive values
                                 writerow = False
@@ -214,8 +212,8 @@ class EmotivHeadsetInformation:
     def stopLoggingToFile(self):
         self.keepLogging = False
 
-    def setCurrentFileName(self, fileName):
-        self.currentFileName = fileName
+    #def setCurrentFileName(self, fileName):
+        #self.currentFileName = fileName
 
     def startStateLogging(self):
         userID       = c_uint(0)
@@ -278,56 +276,3 @@ class EmotivHeadsetInformation:
         self.libEDK.IEE_EngineDisconnect()
         self.libEDK.IEE_EmoStateFree(self.eState)
         self.libEDK.IEE_EmoEngineEventFree(self.eEvent)
-
-    def startEEGLogging(self):
-        userID = c_uint(0)
-        user = pointer(userID)
-        ready = 0
-        state = c_int(0)
-        
-        alphaValue = c_double(0)
-        low_betaValue = c_double(0)
-        high_betaValue = c_double(0)
-        gammaValue = c_double(0)
-        thetaValue = c_double(0)
-        
-        alpha = pointer(alphaValue)
-        low_beta = pointer(low_betaValue)
-        high_beta = pointer(high_betaValue)
-        gamma = pointer(gammaValue)
-        theta = pointer(thetaValue)
-        
-        channelList = array('I', [3, 7, 9, 12, 16])  # IED_AF3, IED_AF4, IED_T7, IED_T8, IED_Pz
-        
-        # -------------------------------------------------------------------------
-        print "==================================================================="
-        print "Example to get the average band power for a specific channel from the latest epoch."
-        print "==================================================================="
-        print "Theta, Alpha, Low_beta, High_beta, Gamma \n"
-        
-        while True:
-            state = self.libEDK.IEE_EngineGetNextEvent(self.eEvent)
-        
-            if state == 0:
-                eventType = self.libEDK.IEE_EmoEngineEventGetType(self.eEvent)
-                self.libEDK.IEE_EmoEngineEventGetUserId(self.eEvent, user)
-                if eventType == 16:  # self.libEDK.IEE_Event_enum.IEE_UserAdded
-                    ready = 1
-                    self.libEDK.IEE_FFTSetWindowingType(userID, 1)  # 1: self.libEDK.IEE_WindowingTypes_enum.IEE_HAMMING
-                    print "User added"
-        
-                if ready == 1:
-                    for i in channelList:
-                        result = c_int(0)
-                        result = self.libEDK.IEE_GetAverageBandPowers(userID, i, theta, alpha, low_beta, high_beta, gamma)
-        
-                        if result == 0:  # EDK_OK
-                            print "%.6f, %.6f, %.6f, %.6f, %.6f \n" % (thetaValue.value, alphaValue.value, low_betaValue.value, high_betaValue.value, gammaValue.value)
-        
-            elif state != 0x0600:
-                print "Internal error in Emotiv Engine!"
-            sleep(0.1)
-        # -------------------------------------------------------------------------
-        self.libEDK.IEE_EngineDisconnect()
-        self.libEDK.IEE_EmoStateFree(self.eState)
-        self.libEDK.IEE_EmoEnginself.eEventFree(self.eEvent)

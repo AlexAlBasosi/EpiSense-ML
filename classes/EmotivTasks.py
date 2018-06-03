@@ -30,5 +30,5 @@ class EmotivHeadsetThreadedTasks:
     def stopLoggingToFile(self):
         self.emotiv.stopLoggingToFile()
 
-    def setCurrentFileName(self, fileName):
-        self.emotiv.setCurrentFileName(fileName)
+    #def setCurrentFileName(self, fileName):
+        #self.emotiv.setCurrentFileName(fileName)
